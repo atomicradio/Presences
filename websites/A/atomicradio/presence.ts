@@ -9,6 +9,7 @@ presence.on("UpdateData", () => {
 				"https://cdn.rcd.gg/PreMiD/websites/A/atomicradio/assets/logo.png",
 			smallImageKey: Assets.Search,
 			startTimestamp: browsingTimestamp,
+			type: ActivityType.Listening,
 		},
 		player = document.querySelector<HTMLDivElement>("div.player");
 
@@ -23,9 +24,12 @@ presence.on("UpdateData", () => {
 			player.querySelector<HTMLAnchorElement>("div.track-title").textContent;
 		presenceData.state =
 			player.querySelector<HTMLDivElement>("div.track-artist").textContent;
-		presenceData.endTimestamp = new Date(
-			player.querySelector("#endingAt").textContent
-		).getTime();
+		presenceData.startTimestamp = Math.floor(new Date(
+			JSON.parse(localStorage.getItem("currentTrack")).startingAt
+		).getTime() / 1000);
+		presenceData.endTimestamp = Math.floor(new Date(
+			JSON.parse(localStorage.getItem("currentTrack")).endingAt
+		).getTime() / 1000);
 		presenceData.smallImageText =
 			player.querySelector("div.track-space").textContent;
 		presenceData.buttons = [
@@ -36,7 +40,10 @@ presence.on("UpdateData", () => {
 				}`,
 			},
 		];
-	} else presenceData.details = "Browsing...";
+	} else if (document.location.pathname === "/") {
+		presenceData.details = "Browsing spaces..";
+		
+	} else presenceData.details = `Browsing ${document.location.pathname.replace("/", "")}..`;
 
 	if (presenceData.details) presence.setActivity(presenceData);
 	else presence.setActivity();
